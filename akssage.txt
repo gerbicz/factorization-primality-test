@@ -1,0 +1,34 @@
+def keres(n): # bár Sage-ban beépített az elemrend, így ez nem lenne ilyen hosszú
+              # program, de nekünk csak alsó becslés kell a rendre, míg kiszámolni azt
+              # már nem lenne polinom algoritmus a keres eljárás
+    r=1
+    while True:
+        r,res,v=r+1,1,True
+        for e in range(1,floor(log(n,2)**2)+1):
+            res=(res*n)%r
+            if res==1:
+                v=False
+                break
+        if v==True:return r # rend elég nagy így, ez az első ilyen r pozitív egész
+
+def AKS(n):
+    if (type(n)!=Integer and type(n)!=int) or n<=1:
+        print"n>1-nek es egesznek kell lennie!"
+        return
+
+    n=Integer(n)
+    if n.is_perfect_power():return False # n teljes hatvány, n összetett
+    
+    r=keres(n)
+    #print"r=",r
+    for a in range(r+1):
+        if 1<gcd(a,n) and gcd(a,n)<n:return False # nemtrivi osztót találtunk, n összetett
+    
+    if n<=r:return True # n prím
+    
+    for a in range(1,floor(sqrt(euler_phi(r))*log(n,2))+1):
+        b,x=var('b'),var('x')
+        R.<b>=PolynomialRing(Integers(n))
+        K.<x>=R.quotient(b^r-1)
+        if (x+a)**n!=x**n+a:return False # n összetett, bukta a prímtesztet mod (x^r-1,n)-ben
+    return True # n prím
